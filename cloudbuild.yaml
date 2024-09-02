@@ -12,11 +12,24 @@ steps:
   - name: "gcr.io/cloud-builders/docker"
     args: ["push", "gcr.io/$PROJECT_ID/my-responsive-0902"]
 
+  # 4단계: Cloud Run에 배포합니다.
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    entrypoint: "bash"
+    args:
+      - "-c"
+      - |
+        gcloud run deploy my-responsive-0902 \
+        --image gcr.io/$PROJECT_ID/my-responsive-0902 \
+        --platform managed \
+        --region us-central1 \
+        --allow-unauthenticated \
+        --project $PROJECT_ID
+
 # 빌드 후 생성될 이미지를 명시합니다.
 images:
   - "gcr.io/$PROJECT_ID/my-responsive-0902"
 
-# Cloud Build에서 사용할 로그 버킷을 설정합니다. 이거 필수!!!
+# Cloud Build에서 사용할 로그 버킷을 설정합니다.
 logs_bucket: gs://cloud-build-test-09
 
 timeout: "1200s"
