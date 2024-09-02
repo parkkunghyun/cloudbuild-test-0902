@@ -1,15 +1,28 @@
 steps:
-  # 1단계: Node.js 이미지를 사용하여 애플리케이션을 빌드합니다.
-  - name: "node:16"
-    entrypoint: "bash"
+  # 1단계: Node.js를 사용하여 애플리케이션을 빌드합니다.
+  - name: "node:14"
+    entrypoint: "bash" # shell이 이거면 명령어 한꺼번에 다같이 실행가능!
     args: ["-c", "npm install && npm run build"]
 
-  # 2단계: App Engine에 배포합니다.
-  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
-    entrypoint: "bash"
-    args: ["-c", "gcloud app deploy --quiet"]
+  # 2단계: Docker 이미지를 빌드합니다.
+  - name: "gcr.io/cloud-builders/docker"
+    # 도커 이미지를 빌드하고 푸시하는데 사용
+    # args는 docker명령어에 전달되는 인수
+    # -t 는 태그에 붙이는 옵션
+    # .을 통해 현재 디렉토리에서 dockerfile을 찾고 이를 기반으로 이미지를 빌드함
+    args: ["build", "-t", "gcr.io/$PROJECT_ID/my-responsive-0902", "."]
 
-# Cloud Build에서 사용할 로그 버킷을 설정합니다.
+  # 3단계: Docker 이미지를 Google Container Registry에 푸시합니다.
+  # docker빌드를 GCR에 올린다
+  - name: "gcr.io/cloud-builders/docker"
+    args: ["push", "gcr.io/$PROJECT_ID/my-responsive-0902"]
+
+# 빌드 후 생성될 이미지를 명시합니다.
+# 이게 이제부터 도커이미지 이름 -> Cloud
+images:
+  - "gcr.io/$PROJECT_ID/my-responsive-0902"
+
+# Cloud Build에서 사용할 로그 버킷을 설정합니다. 이거 필수!!!
 logs_bucket: gs://cloud-build-test-09
 
 timeout: "1200s"
