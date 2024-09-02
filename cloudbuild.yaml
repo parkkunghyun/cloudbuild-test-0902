@@ -1,0 +1,13 @@
+steps:
+  - name: "node:14"
+    entrypoint: "bash"
+    args: ["-c", "npm install && npm run build"]
+
+  - name: "gcr.io/google-containers/gsutil"
+    entrypoint: "bash"
+    args: ["-c", "gsutil -m rsync -r build gs://cloud-build-test-09"]
+
+images:
+  - "gcr.io/$PROJECT_ID/my-react-app"
+
+timeout: "1200s"
