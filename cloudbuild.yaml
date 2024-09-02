@@ -1,13 +1,15 @@
 steps:
+  # 1단계: Node.js를 사용하여 앱을 빌드합니다.
   - name: "node:14"
     entrypoint: "bash"
     args: ["-c", "npm install && npm run build"]
 
+  # 2단계: 빌드된 결과물을 Google Cloud Storage에 업로드합니다.
   - name: "gcr.io/google-containers/gsutil"
     entrypoint: "bash"
     args: ["-c", "gsutil -m rsync -r build gs://cloud-build-test-09"]
 
-images:
-  - "gcr.io/$PROJECT_ID/my-react-app"
+# Cloud Build에서 사용할 로그 버킷을 설정합니다.
+logs_bucket: gs://cloud-build-test-09
 
 timeout: "1200s"
